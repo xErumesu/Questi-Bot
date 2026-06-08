@@ -48,10 +48,6 @@ export default {
   async execute(interaction, config, client) {
     try {
       await InteractionHelper.safeDefer(interaction);
-
-      const name1Raw = interaction.options.getString("name1");
-      const name2Raw = interaction.options.getString("name2");
-
       
       if (!name1Raw || name1Raw.trim().length === 0 || !name2Raw || name2Raw.trim().length === 0) {
         throw new TitanBotError(
@@ -112,12 +108,10 @@ if (
 }
       
       
-      const blacklistedShips = [
+    const blacklistedShips = [
   "123456789012345678", // Ava
   "987654321098765432", // Josh
 ];
-      const name1 = interaction.options.getString("name1");
-const name2 = interaction.options.getString("name2");
 
 if (
   blacklistedShips.includes(name1) ||
