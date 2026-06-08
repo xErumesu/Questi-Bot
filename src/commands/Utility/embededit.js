@@ -1,7 +1,8 @@
 import {
   SlashCommandBuilder,
   PermissionFlagsBits,
-  EmbedBuilder
+  EmbedBuilder,
+  ChannelType
 } from 'discord.js';
 
 import { InteractionHelper } from '../../utils/interactionHelper.js';
@@ -12,21 +13,25 @@ export default {
     .setName('embededit')
     .setDescription('Edit an existing bot embed.')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
-
+    .addChannelOption(option =>
+      option
+        .setName('channel')
+        .setDescription('Channel containing the embed')
+        .addChannelTypes(ChannelType.GuildText)
+        .setRequired(true)
+    )
     .addStringOption(option =>
       option
         .setName('messageid')
         .setDescription('Message ID of the embed')
         .setRequired(true)
     )
-
     .addStringOption(option =>
       option
         .setName('title')
         .setDescription('New embed title')
         .setRequired(false)
     )
-
     .addStringOption(option =>
       option
         .setName('description')
@@ -40,15 +45,22 @@ export default {
     try {
       await InteractionHelper.safeDefer(interaction);
 
+      const channel = interaction.options.getChannel('channel');
       const messageId = interaction.options.getString('messageid');
       const title = interaction.options.getString('title');
       const description = interaction.options.getString('description');
 
-      const message = await interaction.channel.messages.fetch(messageId);
+      if (!title && !description) {
+        return await InteractionHelper.safeEditReply(interaction, {
+          content: 'Give me a title or description to change.'
+        });
+      }
+
+      const message = await channel.messages.fetch(messageId).catch(() => null);
 
       if (!message) {
         return await InteractionHelper.safeEditReply(interaction, {
-          content: 'Message not found.'
+          content: 'Message not found. Check the channel and message ID.'
         });
       }
 
@@ -64,19 +76,16 @@ export default {
         });
       }
 
-      const embed = EmbedBuilder.from(message.embeds[0].toJSON);
+      const embed = new EmbedBuilder(message.embeds[0].toJSON());
 
       if (title) embed.setTitle(title);
       if (description) embed.setDescription(description);
 
-      await message.edit({
-        embeds: [embed]
-      });
+      await message.edit({ embeds: [embed] });
 
       return await InteractionHelper.safeEditReply(interaction, {
-        content: '✅ Embed edited successfully.'
+        content: `✅ Embed edited in ${channel}.`
       });
-
     } catch (error) {
       await handleInteractionError(interaction, error, {
         commandName: 'embededit',
