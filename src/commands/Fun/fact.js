@@ -23,6 +23,7 @@ const facts = [
   "The old EMQ mascot used to be a panda.",
   "If you DIDN'T know before...EMQ means Everyone (is) Morally Questionable.",
   "Everything started with Playstation clips and Capcut on a phone.",
+  "99.9999999% of the time, my grammar is NOT my fault. It's Zuri's.",
 ];
 
 export default {
@@ -35,7 +36,7 @@ export default {
     try {
       const randomFact = facts[Math.floor(Math.random() * facts.length)];
 
-      const embed = successEmbed("Heh...If only if YOU knew.", `Fun fact! **${randomFact}**`);
+      const embed = successEmbed("Tch...If only YOU knew.", `Fun fact! **${randomFact}**`);
 
       await InteractionHelper.safeReply(interaction, { embeds: [embed] });
       logger.debug(`Fact command executed by user ${interaction.user.id} in guild ${interaction.guildId}`);
