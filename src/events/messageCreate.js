@@ -29,7 +29,7 @@ export default {
         return message.reply("Did somebody say questionable?");
       }
       if (content.includes("hate questi")) {
-        return messaage.channel.send("Vise frickin versa.");
+        await messaage.channel.send("Vise frickin versa.");
       }
       await handleLeveling(message, client);
     } catch (error) {
