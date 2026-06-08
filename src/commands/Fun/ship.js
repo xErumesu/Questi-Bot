@@ -138,7 +138,7 @@ if (
     "Is it even **allowed**??",
     "Absolutely not.",
     "Nope. I reject this ship.",
-    "***BWAHAHAHAHAHAHAHA!!!!!***",
+    "***BWAAHHHCAAHCAAHHCAHHAHAHA!!!!!***",
   ];
 
   const reply = noReplies[Math.floor(Math.random() * noReplies.length)];
