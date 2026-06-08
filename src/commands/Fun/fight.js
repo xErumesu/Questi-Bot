@@ -62,6 +62,11 @@ export default {
           "lands a critical hit",
           "uses a weak spell",
           "parries and counterattacks",
+          "black flashes towards",
+          "threw a divergent fist",
+          "uses the power of friendship",
+          "ratioed a critical hit",
+          "crossed them out of their shoes",  
         ][rand(0, 3)];
         log.push(
           `\n**Round ${i}:** ${attacker.username} ${action} on ${target.username} for ${rand(1, damage)} damage!`,
@@ -69,7 +74,7 @@ export default {
       }
 
       const outcomeText = log.join("\n");
-      const winnerText = `BAHAHAHA OH WOOOW! **${winner.username}** has defeated ${loser.username} and became a better Questionable than them!`;
+      const winnerText = `BAHAHAHA ***OH WOOOW!*** **${winner.username}** has defeated ${loser.username} and became a better Questionable than them!`;
       const fullDescription = `${outcomeText}\n\n${winnerText}`;
 
       const description = fullDescription.length <= EMBED_DESCRIPTION_LIMIT
