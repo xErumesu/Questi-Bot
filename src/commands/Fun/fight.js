@@ -38,7 +38,7 @@ export default {
       
       if (opponent.bot) {
         const embed = warningEmbed(
-          "You're so desperate you challenged a bot!? Pssh. Challenge a real person instead.",
+          `You're so desperate you challenged **a bot**!? Pssh. Challenge a real person instead.`,
           "⚔️ Invalid Opponent"
         );
         return await InteractionHelper.safeEditReply(interaction, { embeds: [embed] });
