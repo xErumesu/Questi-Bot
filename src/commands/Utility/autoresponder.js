@@ -12,21 +12,50 @@ export default {
     .setName('autoresponder')
     .setDescription('Enable or disable auto responses in this channel.')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
-    .addSubcommand(subcommand =>
-      subcommand
-        .setName('enable')
-        .setDescription('Enable auto responses in this channel.')
+   .addSubcommand(subcommand =>
+  subcommand
+    .setName('enable')
+    .setDescription('Enable auto responses in a channel.')
+    .addChannelOption(option =>
+      option
+        .setName('channel')
+        .setDescription('Channel to enable autoresponses in')
+        .setRequired(true)
     )
-    .addSubcommand(subcommand =>
-      subcommand
-        .setName('disable')
-        .setDescription('Disable auto responses in this channel.')
+)
+ .addSubcommand(subcommand =>
+  subcommand
+    .setName('enable')
+    .setDescription('Enable auto responses in a channel.')
+    .addChannelOption(option =>
+      option
+        .setName('channel')
+        .setDescription('Channel to enable autoresponses in')
+        .setRequired(true)
     )
-    .addSubcommand(subcommand =>
-      subcommand
-        .setName('status')
-        .setDescription('Check if auto responses are enabled here.')
-    ),
+)
+.addSubcommand(subcommand =>
+  subcommand
+    .setName('disable')
+    .setDescription('Disable auto responses in a channel.')
+    .addChannelOption(option =>
+      option
+        .setName('channel')
+        .setDescription('Channel to disable autoresponses in')
+        .setRequired(true)
+    )
+)
+.addSubcommand(subcommand =>
+  subcommand
+    .setName('status')
+    .setDescription('Check if auto responses are enabled in a channel.')
+    .addChannelOption(option =>
+      option
+        .setName('channel')
+        .setDescription('Channel to check')
+        .setRequired(true)
+    )
+)
 
   category: 'Utility',
 
@@ -35,14 +64,14 @@ export default {
       await InteractionHelper.safeDefer(interaction);
 
       const subcommand = interaction.options.getSubcommand();
-      const channelId = interaction.channel.id;
-
+      const channel = interaction.options.getChannel('channel') || interaction.channel;
+const channelId = channel.id;
       if (subcommand === 'disable') {
         disabledChannels.add(channelId);
 
         const embed = warningEmbed(
           '🤖 Autoresponder Disabled',
-          'Auto responses are now disabled in this channel.'
+          `Auto responses are now disabled in ${channel}.`
         );
 
         return await InteractionHelper.safeEditReply(interaction, { embeds: [embed] });
@@ -53,7 +82,7 @@ export default {
 
         const embed = successEmbed(
           '🤖 Autoresponder Enabled',
-          'Auto responses are now enabled in this channel.'
+          `Auto responses are now enabled in ${channel}.`
         );
 
         return await InteractionHelper.safeEditReply(interaction, { embeds: [embed] });
