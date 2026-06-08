@@ -29,7 +29,12 @@ export default {
         return message.reply("Did somebody say questionable?");
       }
       if (content.includes("hate questi")) {
-        await message.channel.send("Vise frickin versa.");
+        const responses = [
+            "Vice frickin versa.",
+            "Who is this???",
+            "A **ROBOT** cannot be your rival, gang 🥀",
+        ];
+        const response = responses[Math.floor(Math.random() * responses.length)];
       }
       await handleLeveling(message, client);
     } catch (error) {
