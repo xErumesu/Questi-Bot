@@ -68,6 +68,12 @@ export default {
       const combination = sortedNames.join("-").toLowerCase();
       const score = stringToHash(combination) % 101;
 
+      if (name1.toLowerCase() === client.user.id) {
+        "ME??? Ewwwwwwwuuhhhh!",
+          `**${name1}** is below MY standards.`
+      }
+
+        
       let description;
       if (score === 100) {
         description = "Soulmates! It's destiny, they belong together!";
