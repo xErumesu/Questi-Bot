@@ -14,8 +14,8 @@ const facts = [
   "Erumesu is just Hermes in japanese.",
   "AMQ stands for 'Also Morally Questionable.'",
   "EJ used to make gifs on gfycat before it shutdown...He still mourns its death till this day.",
-  "Rylan REALLY likes volleyball.",
-  "Leo really likes horses.",
+  "Rylan really likes volleyball.",
+  "Leo REALLY likes horses.",
   "Zuri is making all these fun facts. (Hello world!)",
   "Keni used to be the thumbnail artist for EMQ before he got too busy with college.",
   "Keni is the OLDEST member in EMQ.",
@@ -35,7 +35,7 @@ export default {
     try {
       const randomFact = facts[Math.floor(Math.random() * facts.length)];
 
-      const embed = successEmbed("🧠 Did You Know?", `💡 **${randomFact}**`);
+      const embed = successEmbed("FUN FACT!", `💡 **${randomFact}**`);
 
       await InteractionHelper.safeReply(interaction, { embeds: [embed] });
       logger.debug(`Fact command executed by user ${interaction.user.id} in guild ${interaction.guildId}`);
