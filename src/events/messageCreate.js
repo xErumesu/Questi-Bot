@@ -35,6 +35,8 @@ export default {
             "A **ROBOT** cannot be your rival, gang 🥀",
         ];
         const response = responses[Math.floor(Math.random() * responses.length)];
+
+        await message.channel.send(response);
       }
       await handleLeveling(message, client);
     } catch (error) {
