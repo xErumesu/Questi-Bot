@@ -289,7 +289,7 @@ export const botConfig = {
   // =========================
   verification: {
     // Message shown when posting the verification panel.
-    defaultMessage: "Click the button below to verify yourself and gain access to the server!",
+    defaultMessage: "If you REALLY wanna access the server, click the button below to verify yourself!",
 
     // Text on the verification button.
     defaultButtonText: "Verify",
@@ -319,7 +319,7 @@ export const botConfig = {
 
       // Human-readable descriptions for each criteria mode.
       criteria: {
-        account_age: "Account must be older than specified days",
+        account_age: "Hah! Your account is TOOO young.",
         server_size: "All users if server has less than 1000 members",
         none: "All users immediately"
       }
@@ -359,7 +359,7 @@ export const botConfig = {
     // Welcome template posted when a user joins.
     // Placeholders: {user}, {server}, {memberCount}
     defaultWelcomeMessage:
-      "Welcome {user} to {server}! We now have {memberCount} members!",
+      "Well, well, well...Welcome {user} to {server}...We now have {memberCount} Questionables!",
     // Goodbye template posted when a user leaves.
     // Placeholders: {user}, {memberCount}
     defaultGoodbyeMessage:
@@ -421,7 +421,7 @@ export const botConfig = {
   // GENERIC BOT MESSAGES
   // =========================
   messages: {
-    noPermission: "You do not have permission to use this command.",
+    noPermission: "HAHA! You do not have permission to use this command.",
     cooldownActive: "Please wait {time} before using this command again.",
     errorOccurred: "An error occurred while executing this command.",
     missingPermissions:
