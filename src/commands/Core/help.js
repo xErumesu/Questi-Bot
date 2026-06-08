@@ -24,7 +24,7 @@ const HELP_MENU_TIMEOUT_MS = 5 * 60 * 1000;
 const CATEGORY_ICONS = {
     Core: "ℹ️",
     Moderation: "🛡️",
-    Economy: "💰",
+    Economy: " Unable to access :/",
     Fun: "🎮",
     Leveling: "📊",
     Utility: "🔧",
@@ -86,8 +86,8 @@ export async function createInitialHelpMenu(client) {
             inline: true
         },
         {
-            name: "💰 **Economy**",
-            value: "Currency system, shops, and virtual economy",
+            name: "**Economy**",
+            value: "Zuri placed a firewall on this :/",
             inline: true
         },
         {
@@ -158,7 +158,7 @@ export async function createInitialHelpMenu(client) {
     );
 
     embed.setFooter({ 
-        text: "Made with ❤️" 
+        text: "Made Questionably" 
     });
     embed.setTimestamp();
 
