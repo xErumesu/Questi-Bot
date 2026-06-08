@@ -33,6 +33,8 @@ export default {
             "Vice frickin versa.",
             "Who is this???",
             "A **ROBOT** cannot be your rival, gang 🥀",
+            "WHO ARE YOU??",
+            "Nobody knows you.",
         ];
         const response = responses[Math.floor(Math.random() * responses.length)];
 
