@@ -58,9 +58,9 @@ export default {
         const attacker = rand(0, 1) === 0 ? challenger : opponent;
         const target = attacker.id === challenger.id ? opponent : challenger;
         const action = [
-          "throws a wild punch",
+          "throws a very normal punch",
           "lands a critical hit",
-          "uses a weak spell",
+          "attempted a jutsu",
           "parries and counterattacks",
           "black flashes towards",
           "threw a divergent fist",
