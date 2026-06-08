@@ -24,6 +24,9 @@ const facts = [
   "If you DIDN'T know before...EMQ means Everyone (is) Morally Questionable.",
   "Everything started with Playstation clips and Capcut on a phone.",
   "99.9999999% of the time, my grammar is NOT my fault. It's Zuri's.",
+  "EMQ started youtube playing Locked.",
+  "EMQ is the friends that we made along the way.",
+  "EMQ: Friendship is magic. (Please help. - Questi)" ,
 ];
 
 export default {
