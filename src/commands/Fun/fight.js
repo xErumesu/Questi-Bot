@@ -29,7 +29,7 @@ export default {
       
       if (challenger.id === opponent.id) {
         const embed = warningEmbed(
-          `**${challenger.username}**, you can't fight yourself! That's a draw before it even starts.`,
+          `**${challenger.username}**, you can't fight yourself! Self-harm is bad.`,
           "⚔️ Invalid Challenge"
         );
         return await InteractionHelper.safeEditReply(interaction, { embeds: [embed] });
