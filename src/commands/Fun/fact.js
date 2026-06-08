@@ -35,7 +35,7 @@ export default {
     try {
       const randomFact = facts[Math.floor(Math.random() * facts.length)];
 
-      const embed = successEmbed("FUN FACT!", `💡 **${randomFact}**`);
+      const embed = successEmbed("Heh...If only if YOU knew.", `Fun fact, **${randomFact}**`);
 
       await InteractionHelper.safeReply(interaction, { embeds: [embed] });
       logger.debug(`Fact command executed by user ${interaction.user.id} in guild ${interaction.guildId}`);
