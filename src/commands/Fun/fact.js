@@ -5,12 +5,24 @@ import { handleInteractionError, TitanBotError, ErrorTypes } from '../../utils/e
 
 import { InteractionHelper } from '../../utils/interactionHelper.js';
 const facts = [
-  "A day on Venus is longer than a year on Venus.",
-  "The shortest war in history was between Britain and Zanzibar on August 27, 1896. It lasted 38 to 45 minutes.",
-  "The word 'Strengths' is the longest word in the English language with only one vowel.",
-  "Octopuses have three hearts and blue blood.",
-  "There are more trees on Earth than stars in the Milky Way galaxy.",
-  "The total weight of all the ants on Earth is thought to be about the same as the total weight of all humans.",
+  "AJ came up with the name Morally Questionable and EJ just added Everyone onto it.",
+  "Buttfart is Buttfart",
+  "EJ was once known as Febius.",
+  "Hammys' favorite snack is creatine.",
+  "The original Buttfart was actually a cat.",
+  "Ajimious is a made up word AJ came up with that sounded like a greek hero name.",
+  "Erumesu is just Hermes in japanese.",
+  "AMQ stands for 'Also Morally Questionable.'",
+  "EJ used to make gifs on gfycat before it shutdown...He still mourns its death till this day.",
+  "Rylan REALLY likes volleyball.",
+  "Leo really likes horses.",
+  "Zuri is making all these fun facts. (Hello world!)",
+  "Keni used to be the thumbnail artist for EMQ before he got too busy with college.",
+  "Keni is the OLDEST member in EMQ.",
+  "Rylan is the YOUNGEST member in EMQ.",
+  "The old EMQ mascot used to be a panda.",
+  "If you DIDN'T know before...EMQ means Everyone (is) Morally Questionable.",
+  "Everything started with Playstation clips and Capcut on a phone.",
 ];
 
 export default {
