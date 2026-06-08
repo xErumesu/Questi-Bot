@@ -113,23 +113,40 @@ if (
       
       
     const blacklistedShips = [
-  "123456789012345678", // Ava
-  "987654321098765432", // Josh
+  "856416079970566184", // Zuri
+  "465257883894939669", // StarStatus
+  "551648843008049153", // EvilxWithin
+  "593248234282024961", // Ajimious
+  "742072458743382037", // Dope
+  "666020603790360602", // Sobaba
+  "842897184348438559", // Leo
+  "684587374294073417", // Dizzy
+  "360843317270806549", // Woozy
+  "1272394178785050659", // Buttfart
+  "955202828249497620", // Valor
+  "693478819222388847", // Zulqoz
+  "1056714103957229718", // Rylan
+  "537767012227743775", // Keni
 ];
 
 if (
   blacklistedShips.includes(name1) ||
   blacklistedShips.includes(name2)
 ) {
+    const noReplies = [
+    "Hah. As if.",
+    "Is it even **allowed**??",
+    "Absolutely not.",
+    "Nope. I reject this ship.",
+    "***BWAHAHAHAHAHAHAHA!!!!!***"
+  ];
+
+  const reply = noReplies[Math.floor(Math.random() * ewReplies.length)];
+
   const embed = warningEmbed(
     "💖 Ship Rejected",
-    "EWWWW. Do not ship that person."
+    `${reply}\n\nThey're above your standards.`
   );
-
-  return await InteractionHelper.safeEditReply(interaction, {
-    embeds: [embed],
-  });
-}
 
         
       let description;
