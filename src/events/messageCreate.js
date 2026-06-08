@@ -8,16 +8,26 @@ import { logger } from '../utils/logger.js';
 import { getLevelingConfig, getUserLevelData } from '../services/leveling.js';
 import { addXp } from '../services/xpSystem.js';
 import { checkRateLimit } from '../utils/rateLimiter.js';
+import { disabledChannels } from '../commands/Utility/autoresponder.js';
 
 const MESSAGE_XP_RATE_LIMIT_ATTEMPTS = 12;
 const MESSAGE_XP_RATE_LIMIT_WINDOW_MS = 10000;
 
 export default {
-  name: Events.MessageCreate,
+    name: Events.MessageCreate,
   async execute(message, client) {
     try {
-      
       if (message.author.bot || !message.guild) return;
+
+      // Autoresponder disabled in this channel
+      if (disabledChannels.has(message.channel.id)) return;
+
+      // Auto responses go here
+      const content = message.content.toLowerCase();
+
+      if (content.includes("questionable")) {
+        return message.reply("Did somebody say questionable?");
+      }
 
       await handleLeveling(message, client);
     } catch (error) {
@@ -113,7 +123,5 @@ async function handleLeveling(message, client) {
     logger.error('Error handling leveling for message:', error);
   }
 }
-
-// Line break for automatic messages.
 
 
