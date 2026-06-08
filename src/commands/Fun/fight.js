@@ -67,7 +67,7 @@ export default {
           "uses the power of friendship",
           "ratioed a critical hit",
           "crossed them out of their shoes",  
-        ][rand(0, 3)];
+      const action = actions[rand(0, actions.length - 1)];
         log.push(
           `\n**Round ${i}:** ${attacker.username} ${action} on ${target.username} for ${rand(1, damage)} damage!`,
         );
