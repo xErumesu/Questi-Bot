@@ -22,16 +22,6 @@ export default {
 
     execute: withErrorHandling(async (interaction, config, client) => {
         const deferred = await InteractionHelper.safeDefer(interaction);
-if (!deferred) return;
-
-const disabledEmbed = warningEmbed(
-    "🚧 Feature Disabled",
-    "This feature isn't added yet, SORRY!"
-);
-
-return await InteractionHelper.safeEditReply(interaction, {
-    embeds: [disabledEmbed]
-});
         
             
             const targetUser = interaction.options.getUser("user") || interaction.user;
