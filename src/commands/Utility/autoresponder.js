@@ -9,55 +9,44 @@ export { disabledChannels };
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('autoresponder')
-    .setDescription('Enable or disable auto responses in this channel.')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
-   .addSubcommand(subcommand =>
-  subcommand
-    .setName('enable')
-    .setDescription('Enable auto responses in a channel.')
-    .addChannelOption(option =>
-      option
-        .setName('channel')
-        .setDescription('Channel to enable autoresponses in')
-        .setRequired(true)
-    )
-)
- .addSubcommand(subcommand =>
-  subcommand
-    .setName('enable')
-    .setDescription('Enable auto responses in a channel.')
-    .addChannelOption(option =>
-      option
-        .setName('channel')
-        .setDescription('Channel to enable autoresponses in')
-        .setRequired(true)
-    )
-)
-.addSubcommand(subcommand =>
-  subcommand
-    .setName('disable')
-    .setDescription('Disable auto responses in a channel.')
-    .addChannelOption(option =>
-      option
-        .setName('channel')
-        .setDescription('Channel to disable autoresponses in')
-        .setRequired(true)
-    )
-)
-.addSubcommand(subcommand =>
-  subcommand
-    .setName('status')
-    .setDescription('Check if auto responses are enabled in a channel.')
-    .addChannelOption(option =>
-      option
-        .setName('channel')
-        .setDescription('Channel to check')
-        .setRequired(true)
-    )
-)
+  .setName('autoresponder')
+  .setDescription('Enable or disable auto responses in a channel.')
+  .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
+  .addSubcommand(subcommand =>
+    subcommand
+      .setName('enable')
+      .setDescription('Enable auto responses in a channel.')
+      .addChannelOption(option =>
+        option
+          .setName('channel')
+          .setDescription('Channel to enable autoresponses in')
+          .setRequired(true)
+      )
+  )
+  .addSubcommand(subcommand =>
+    subcommand
+      .setName('disable')
+      .setDescription('Disable auto responses in a channel.')
+      .addChannelOption(option =>
+        option
+          .setName('channel')
+          .setDescription('Channel to disable autoresponses in')
+          .setRequired(true)
+      )
+  )
+  .addSubcommand(subcommand =>
+    subcommand
+      .setName('status')
+      .setDescription('Check if auto responses are enabled in a channel.')
+      .addChannelOption(option =>
+        option
+          .setName('channel')
+          .setDescription('Channel to check')
+          .setRequired(true)
+      )
+  ),
 
-  category: 'Utility',
+category: 'Utility',
 
     async execute(interaction, config, client) {
     try {
