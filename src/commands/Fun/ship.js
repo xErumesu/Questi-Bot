@@ -96,6 +96,42 @@ export default {
 
   return await InteractionHelper.safeEditReply(interaction, { embeds: [embed] });
 }
+      
+if (
+  name1 === "577137487181512704" ||
+  name2 === "577137487181512704"
+) {
+  const embed = warningEmbed(
+    "💖 Ship Rejected",
+    "Of course you want to be with THE Captain Questionable. DENIED! Haha!"
+  );
+
+  return await InteractionHelper.safeEditReply(interaction, {
+    embeds: [embed],
+  });
+}
+      
+      
+      const blacklistedShips = [
+  "123456789012345678", // Ava
+  "987654321098765432", // Josh
+];
+      const name1 = interaction.options.getString("name1");
+const name2 = interaction.options.getString("name2");
+
+if (
+  blacklistedShips.includes(name1) ||
+  blacklistedShips.includes(name2)
+) {
+  const embed = warningEmbed(
+    "💖 Ship Rejected",
+    "EWWWW. Do not ship that person."
+  );
+
+  return await InteractionHelper.safeEditReply(interaction, {
+    embeds: [embed],
+  });
+}
 
         
       let description;
