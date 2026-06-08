@@ -5,14 +5,6 @@ import { withErrorHandling, createError, ErrorTypes } from '../../utils/errorHan
 import { logger } from '../../utils/logger.js';
 import { InteractionHelper } from '../../utils/interactionHelper.js';
 
-const deferred = await InteractionHelper.safeDefer(interaction);
-if (!deferred) return;
-
-const embed = warningEmbed(
-    "🚧 Feature Disabled",
-    "This feature isn't added yet, SORRY!"
-);
-
 return await InteractionHelper.safeEditReply(interaction, {
     embeds: [embed]
 });
@@ -30,7 +22,17 @@ export default {
 
     execute: withErrorHandling(async (interaction, config, client) => {
         const deferred = await InteractionHelper.safeDefer(interaction);
-        if (!deferred) return;
+if (!deferred) return;
+
+const disabledEmbed = warningEmbed(
+    "🚧 Feature Disabled",
+    "This feature isn't added yet, SORRY!"
+);
+
+return await InteractionHelper.safeEditReply(interaction, {
+    embeds: [disabledEmbed]
+});
+        
             
             const targetUser = interaction.options.getUser("user") || interaction.user;
             const guildId = interaction.guildId;
