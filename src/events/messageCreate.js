@@ -28,7 +28,9 @@ export default {
       if (content.includes("questionable")) {
         return message.reply("Did somebody say questionable?");
       }
-
+      if (content.includes("hate questi")) {
+        return messaage.channel.send("Vise frickin versa.");
+      }
       await handleLeveling(message, client);
     } catch (error) {
       logger.error('Error in messageCreate event:', error);
