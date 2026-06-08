@@ -14,7 +14,17 @@ function stringToHash(str) {
   }
   return Math.abs(hash);
 }
+function isBotMentioned(name, client) {
+  const botId = client.user.id;
+  const cleaned = name.toLowerCase();
 
+  return (
+    cleaned === botId ||
+    cleaned === client.user.username.toLowerCase() ||
+    cleaned === `<@${botId}>` ||
+    cleaned === `<@!${botId}>`
+  );
+}
 export default {
     data: new SlashCommandBuilder()
     .setName("ship")
@@ -68,10 +78,24 @@ export default {
       const combination = sortedNames.join("-").toLowerCase();
       const score = stringToHash(combination) % 101;
 
-      if (name1.toLowerCase() === client.user.id) {
-        "ME??? Ewwwwwwwuuhhhh!",
-          `**${name1}** is below MY standards.`
-      }
+     if (isBotMentioned(name1, client) || isBotMentioned(name2, client)) {
+  const ewReplies = [
+    "ME??? Ewwwwwwwuuhhhh!",
+    "EWW. Don’t put me in your shipping business.",
+    "Absolutely not. I’m literally a bot.",
+    "Nope. I reject this ship.",
+    "I was summoned for THIS??"
+  ];
+
+  const reply = ewReplies[Math.floor(Math.random() * ewReplies.length)];
+
+  const embed = warningEmbed(
+    "💖 Ship Rejected",
+    `${reply}\n\nI am below nobody’s standards. Everyone is below **mine**.`
+  );
+
+  return await InteractionHelper.safeEditReply(interaction, { embeds: [embed] });
+}
 
         
       let description;
