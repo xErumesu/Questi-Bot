@@ -25,7 +25,7 @@ export const botConfig = {
     activities: [
       {
         // Text users will see (example: "Playing /help | Titan Bot").
-        name: "EMQ.",
+        name: "https://www.youtube.com/@EveryonesMorallyQuestionable",
         // Activity type number (0 = Playing).
         type: 3, 
       },
