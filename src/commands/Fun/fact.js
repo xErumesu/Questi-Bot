@@ -8,7 +8,7 @@ const facts = [
   "AJ came up with the name Morally Questionable and EJ just added Everyone onto it.",
   "Buttfart is Buttfart",
   "EJ was once known as Febius.",
-  "Hammys' favorite snack is creatine.",
+  "Hammy's favorite snack is creatine.",
   "The original Buttfart was actually a cat.",
   "Ajimious is a made up word AJ came up with that sounded like a greek hero name.",
   "Erumesu is just Hermes in japanese.",
@@ -35,7 +35,7 @@ export default {
     try {
       const randomFact = facts[Math.floor(Math.random() * facts.length)];
 
-      const embed = successEmbed("Heh...If only if YOU knew.", `Fun fact, **${randomFact}**`);
+      const embed = successEmbed("Heh...If only if YOU knew.", `Fun fact! **${randomFact}**`);
 
       await InteractionHelper.safeReply(interaction, { embeds: [embed] });
       logger.debug(`Fact command executed by user ${interaction.user.id} in guild ${interaction.guildId}`);
