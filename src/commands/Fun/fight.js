@@ -67,7 +67,7 @@ export default {
     "throws a divergent fist",
     "uses the power of friendship",
     "ratios a critical hit",
-    "crosses them out of their shoes",
+    "crosses shoes out",
   ];
 
   const action = actions[rand(0, actions.length - 1)];
