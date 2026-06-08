@@ -64,7 +64,7 @@ export default {
         });
       }
 
-      const embed = EmbedBuilder.from(message.embeds[0]);
+      const embed = EmbedBuilder.from(message.embeds[0].data);
 
       if (title) embed.setTitle(title);
       if (description) embed.setDescription(description);
