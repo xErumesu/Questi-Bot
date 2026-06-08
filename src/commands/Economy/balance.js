@@ -5,7 +5,19 @@ import { withErrorHandling, createError, ErrorTypes } from '../../utils/errorHan
 import { logger } from '../../utils/logger.js';
 import { InteractionHelper } from '../../utils/interactionHelper.js';
 
-e-xport default { //I broke the code, just remove the "-" if its going to be added.
+const deferred = await InteractionHelper.safeDefer(interaction);
+if (!deferred) return;
+
+const embed = warningEmbed(
+    "🚧 Feature Disabled",
+    "This feature isn't added yet, SORRY!"
+);
+
+return await InteractionHelper.safeEditReply(interaction, {
+    embeds: [embed]
+});
+
+export default {
     data: new SlashCommandBuilder()
         .setName('balance')
         .setDescription("Check your or someone else's balance")
