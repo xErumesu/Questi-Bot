@@ -4,18 +4,20 @@ import {
   EmbedBuilder
 } from 'discord.js';
 
+import { InteractionHelper } from '../../utils/interactionHelper.js';
+import { handleInteractionError } from '../../utils/errorHandler.js';
+
 export default {
   data: new SlashCommandBuilder()
     .setName('embed')
     .setDescription('Create an embed')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
-
     .addStringOption(option =>
       option
         .setName('title')
         .setDescription('Embed title')
+        .setRequired(false)
     )
-
     .addStringOption(option =>
       option
         .setName('description')
@@ -25,22 +27,28 @@ export default {
 
   category: 'Utility',
 
-  async execute(interaction) {
-    const title = interaction.options.getString('title');
-    const description = interaction.options.getString('description');
+  async execute(interaction, config, client) {
+    try {
+      await InteractionHelper.safeDefer(interaction);
 
-    const embed = new EmbedBuilder()
-      .setDescription(description);
+      const title = interaction.options.getString('title');
+      const description = interaction.options.getString('description');
 
-    if (title) embed.setTitle(title);
+      const embed = new EmbedBuilder()
+        .setDescription(description);
 
-    await interaction.channel.send({
-      embeds: [embed]
-    });
+      if (title) embed.setTitle(title);
 
-    await interaction.reply({
-      content: 'Embed sent!',
-      ephemeral: true
-    });
+      await interaction.channel.send({ embeds: [embed] });
+
+      return await InteractionHelper.safeEditReply(interaction, {
+        content: 'Embed sent!'
+      });
+    } catch (error) {
+      await handleInteractionError(interaction, error, {
+        commandName: 'embed',
+        source: 'embed_command'
+      });
+    }
   }
 };
