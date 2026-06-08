@@ -138,7 +138,7 @@ if (
     "Is it even **allowed**??",
     "Absolutely not.",
     "Nope. I reject this ship.",
-    "***BWAHAHAHAHAHAHAHA!!!!!***"
+    "***BWAHAHAHAHAHAHAHA!!!!!***",
   ];
 
   const reply = noReplies[Math.floor(Math.random() * ewReplies.length)];
@@ -147,7 +147,8 @@ if (
     "💖 Ship Rejected",
     `${reply}\n\nThey're above your standards.`
   );
-
+ return await InteractionHelper.safeEditReply(interaction, { embeds: [embed] });
+}
         
       let description;
       if (score === 100) {
