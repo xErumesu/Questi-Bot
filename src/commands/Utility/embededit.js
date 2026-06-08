@@ -25,7 +25,7 @@ export default {
         .setRequired(true)
     )
     .addStringOption(option =>
-      option
+      optionC
         .setName('title')
         .setDescription('New embed title')
         .setRequired(false)

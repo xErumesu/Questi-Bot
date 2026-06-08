@@ -13,7 +13,7 @@ export default {
     .setDescription('Create an embed')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
     .addStringOption(option =>
-      option
+      optionCC
         .setName('title')
         .setDescription('Embed title')
         .setRequired(false)
