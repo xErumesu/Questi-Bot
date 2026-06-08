@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
-import { successEmbed, warningEmbed } from '../../utils/embeds.js'
-import { InteractionHelper } from '../../utils//interactionHelper.js';
+import { successEmbed, warningEmbed } from '../../utils/embeds.js';
+import { InteractionHelper } from '../../utils/interactionHelper.js';
 import { handleInteractionError } from '../../utils/errorHandler.js';
 
 const disabledChannels = new Set();
@@ -11,7 +11,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName('autoresponder')
     .setDescription('Enable or disable auto responses in this channel.')
-    .setDefaultMemberPermissions(PermissionflagsBits.ManageMessages)
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
     .addSubcommand(subcommand =>
       subcommand
         .setName('enable')
@@ -22,11 +22,12 @@ export default {
         .setName('disable')
         .setDescription('Disable auto responses in this channel.')
     )
-   .addSubcommand(subcommand =>
+    .addSubcommand(subcommand =>
       subcommand
         .setName('status')
         .setDescription('Check if auto responses are enabled here.')
-    )
+    ),
+
   category: 'Utility',
 
     async execute(interaction, config, client) {
