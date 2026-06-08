@@ -141,7 +141,7 @@ if (
     "***BWAHAHAHAHAHAHAHA!!!!!***",
   ];
 
-  const reply = noReplies[Math.floor(Math.random() * ewReplies.length)];
+  const reply = noReplies[Math.floor(Math.random() * noReplies.length)];
 
   const embed = warningEmbed(
     "💖 Ship Rejected",
