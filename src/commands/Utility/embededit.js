@@ -1,8 +1,7 @@
 import {
   SlashCommandBuilder,
   PermissionFlagsBits,
-  EmbedBuilder,
-  ChannelType
+  EmbedBuilder
 } from 'discord.js';
 
 import { InteractionHelper } from '../../utils/interactionHelper.js';
@@ -17,7 +16,6 @@ export default {
       option
         .setName('channel')
         .setDescription('Channel containing the embed')
-        .addChannelTypes(ChannelType.GuildText)
         .setRequired(true)
     )
     .addStringOption(option =>
