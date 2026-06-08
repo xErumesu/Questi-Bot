@@ -55,23 +55,27 @@ export default {
       );
 
       for (let i = 1; i <= rounds; i++) {
-        const attacker = rand(0, 1) === 0 ? challenger : opponent;
-        const target = attacker.id === challenger.id ? opponent : challenger;
-        const action = [
-          "throws a very normal punch",
-          "lands a critical hit",
-          "attempted a jutsu",
-          "parries and counterattacks",
-          "black flashes towards",
-          "threw a divergent fist",
-          "uses the power of friendship",
-          "ratioed a critical hit",
-          "crossed them out of their shoes",  
-      const action = actions[rand(0, actions.length - 1)];
-        log.push(
-          `\n**Round ${i}:** ${attacker.username} ${action} on ${target.username} for ${rand(1, damage)} damage!`,
-        );
-      }
+  const attacker = rand(0, 1) === 0 ? challenger : opponent;
+  const target = attacker.id === challenger.id ? opponent : challenger;
+
+  const actions = [
+    "throws a very normal punch",
+    "lands a critical hit",
+    "attempts a jutsu",
+    "parries and counterattacks",
+    "black flashes towards",
+    "throws a divergent fist",
+    "uses the power of friendship",
+    "ratios a critical hit",
+    "crosses them out of their shoes",
+  ];
+
+  const action = actions[rand(0, actions.length - 1)];
+
+  log.push(
+    `\n**Round ${i}:** ${attacker.username} ${action} on ${target.username} for ${rand(1, damage)} damage!`,
+  );
+}
 
       const outcomeText = log.join("\n");
       const winnerText = `BAHAHAHA ***OH WOOOW!*** **${winner.username}** has defeated ${loser.username} and became a better Questionable than them!`;
