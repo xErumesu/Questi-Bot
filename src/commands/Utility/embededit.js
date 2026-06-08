@@ -10,24 +10,27 @@ import { handleInteractionError } from '../../utils/errorHandler.js';
 export default {
   data: new SlashCommandBuilder()
     .setName('embededit')
-    .setDescription('Edit an embed sent by the bot.')
+    .setDescription('Edit an existing bot embed.')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
+
     .addStringOption(option =>
       option
         .setName('messageid')
         .setDescription('Message ID of the embed')
         .setRequired(true)
     )
+
     .addStringOption(option =>
       option
         .setName('title')
-        .setDescription('New title')
+        .setDescription('New embed title')
         .setRequired(false)
     )
+
     .addStringOption(option =>
       option
         .setName('description')
-        .setDescription('New description')
+        .setDescription('New embed description')
         .setRequired(false)
     ),
 
@@ -43,13 +46,25 @@ export default {
 
       const message = await interaction.channel.messages.fetch(messageId);
 
-      if (!message.editable) {
+      if (!message) {
         return await InteractionHelper.safeEditReply(interaction, {
-          content: "I can't edit that message."
+          content: 'Message not found.'
         });
       }
 
-      const embed = new EmbedBuilder();
+      if (message.author.id !== client.user.id) {
+        return await InteractionHelper.safeEditReply(interaction, {
+          content: "I can only edit messages sent by me."
+        });
+      }
+
+      if (!message.embeds.length) {
+        return await InteractionHelper.safeEditReply(interaction, {
+          content: 'That message has no embed.'
+        });
+      }
+
+      const embed = EmbedBuilder.from(message.embeds[0]);
 
       if (title) embed.setTitle(title);
       if (description) embed.setDescription(description);
@@ -59,8 +74,9 @@ export default {
       });
 
       return await InteractionHelper.safeEditReply(interaction, {
-        content: 'Embed edited!'
+        content: '✅ Embed edited successfully.'
       });
+
     } catch (error) {
       await handleInteractionError(interaction, error, {
         commandName: 'embededit',
