@@ -4,6 +4,7 @@ import {
   EmbedBuilder
 } from 'discord.js';
 
+import { InteractionHelper } from '../../utils/interactionHelper.js';
 import { handleInteractionError } from '../../utils/errorHandler.js';
 
 export default {
@@ -28,19 +29,19 @@ export default {
 
   async execute(interaction, config, client) {
     try {
-      await interaction.deferReply({ ephemeral: true });
+      const deferred = await InteractionHelper.safeDefer(interaction);
+      if (!deferred) return;
 
       const title = interaction.options.getString('title');
       const description = interaction.options.getString('description');
 
-      const embed = new EmbedBuilder()
-        .setDescription(description);
+      const embed = new EmbedBuilder().setDescription(description);
 
       if (title) embed.setTitle(title);
 
       await interaction.channel.send({ embeds: [embed] });
 
-      return await interaction.editReply({
+      return await InteractionHelper.safeEditReply(interaction, {
         content: '✅ Embed sent!'
       });
     } catch (error) {
