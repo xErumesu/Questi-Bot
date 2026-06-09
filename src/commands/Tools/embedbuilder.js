@@ -5,13 +5,13 @@ import {
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
+  ChannelSelectMenuBuilder,
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
   ButtonBuilder,
   ButtonStyle,
   MessageFlags,
-  ComponentType,
 } from 'discord.js';
 
 import { InteractionHelper } from '../../utils/interactionHelper.js';
@@ -47,7 +47,7 @@ function buildEmbed(state) {
   if (state.timestamp) embed.setTimestamp();
   if (state.fields.length) embed.addFields(state.fields);
 
-  if (!state.title && !state.description && !state.fields.length) {
+  if (!state.title && !state.description && !state.fields.length && !state.image && !state.thumbnail) {
     embed.setDescription('*(Empty — use the menu below to add content)*');
   }
 
@@ -58,21 +58,20 @@ function buildPanel(state) {
   return new EmbedBuilder()
     .setTitle('🛠️ Embed Builder — Control Panel')
     .setColor(getColor('info'))
-    .setDescription(
-      [
-        `**Title** › ${state.title ? `\`${state.title.slice(0, 40)}\`` : '`Not set`'}`,
-        `**Description** › ${state.description ? `${state.description.length} character(s)` : '`Not set`'}`,
-        `**Color** › ${state.color ? `\`${state.color}\`` : '`Default`'}`,
-        `**Author** › ${state.author ? `\`${state.author}\`` : '`Not set`'}`,
-        `**Footer** › ${state.footer ? `\`${state.footer}\`` : '`Not set`'}`,
-        `**Thumbnail** › ${state.thumbnail ? '✅ Set' : '`Not set`'}`,
-        `**Image** › ${state.image ? '✅ Set' : '`Not set`'}`,
-        `**Timestamp** › ${state.timestamp ? '✅ Enabled' : '`Disabled`'}`,
-        `**Fields** › ${state.fields.length} / ${MAX_FIELDS}`,
-        '',
-        'The preview above updates live · Closes after 5 min of inactivity'
-      ].join('\n')
-    );
+    .setDescription([
+      `**Target Channel** › ${state.targetChannel ? `${state.targetChannel}` : '`Not set`'}`,
+      `**Title** › ${state.title ? `\`${state.title.slice(0, 40)}\`` : '`Not set`'}`,
+      `**Description** › ${state.description ? `${state.description.length} character(s)` : '`Not set`'}`,
+      `**Color** › ${state.color ? `\`${state.color}\`` : '`Default`'}`,
+      `**Author** › ${state.author ? `\`${state.author}\`` : '`Not set`'}`,
+      `**Footer** › ${state.footer ? `\`${state.footer}\`` : '`Not set`'}`,
+      `**Thumbnail** › ${state.thumbnail ? '✅ Set' : '`Not set`'}`,
+      `**Image** › ${state.image ? '✅ Set' : '`Not set`'}`,
+      `**Timestamp** › ${state.timestamp ? '✅ Enabled' : '`Disabled`'}`,
+      `**Fields** › ${state.fields.length} / ${MAX_FIELDS}`,
+      '',
+      'The preview above updates live · Closes after 5 min of inactivity',
+    ].join('\n'));
 }
 
 function buildMenu(state) {
@@ -86,14 +85,21 @@ function buildMenu(state) {
       new StringSelectMenuOptionBuilder().setLabel('Set Author').setValue('author').setEmoji('👤'),
       new StringSelectMenuOptionBuilder().setLabel('Set Footer').setValue('footer').setEmoji('📄'),
       new StringSelectMenuOptionBuilder().setLabel(`Add Field (${state.fields.length}/25)`).setValue('field').setEmoji('➕'),
-      new StringSelectMenuOptionBuilder().setLabel(state.timestamp ? 'Disable Timestamp' : 'Enable Timestamp').setValue('timestamp').setEmoji('🕐')
+      new StringSelectMenuOptionBuilder().setLabel(state.timestamp ? 'Disable Timestamp' : 'Enable Timestamp').setValue('timestamp').setEmoji('🕐'),
+      new StringSelectMenuOptionBuilder().setLabel('Reset Embed').setValue('reset').setEmoji('🗑️'),
     );
+}
+
+function buildChannelSelect() {
+  return new ChannelSelectMenuBuilder()
+    .setCustomId('eb_target_channel')
+    .setPlaceholder('Choose target channel to send embed');
 }
 
 function buildButtons() {
   return new ActionRowBuilder().addComponents(
     new ButtonBuilder().setCustomId('eb_send').setLabel('Send Embed').setStyle(ButtonStyle.Success),
-    new ButtonBuilder().setCustomId('eb_cancel').setLabel('Cancel').setStyle(ButtonStyle.Danger)
+    new ButtonBuilder().setCustomId('eb_cancel').setLabel('Cancel').setStyle(ButtonStyle.Danger),
   );
 }
 
@@ -112,6 +118,7 @@ export default {
     if (!deferred) return;
 
     const state = {
+      targetChannel: interaction.channel,
       title: null,
       description: null,
       color: getColor('primary'),
@@ -128,12 +135,14 @@ export default {
         embeds: [buildEmbed(state), buildPanel(state)],
         components: [
           new ActionRowBuilder().addComponents(buildMenu(state)),
+          new ActionRowBuilder().addComponents(buildChannelSelect()),
           buildButtons(),
         ],
       });
     };
 
     await refresh();
+
     const msg = await interaction.fetchReply();
 
     const collector = msg.createMessageComponentCollector({
@@ -141,280 +150,382 @@ export default {
     });
 
     collector.on('collect', async i => {
-      if (i.user.id !== interaction.user.id) {
-        return i.reply({ content: "This isn't your embed builder.", ephemeral: true });
-      }
-
-      if (i.isButton()) {
-        if (i.customId === 'eb_cancel') {
-          collector.stop('cancelled');
-          return i.update({ content: '❌ Embed builder cancelled.', embeds: [], components: [] });
+      try {
+        if (i.user.id !== interaction.user.id) {
+          return i.reply({
+            content: "This isn't your embed builder.",
+            ephemeral: true,
+          });
         }
 
-        if (i.customId === 'eb_send') {
-          collector.stop('sent');
-          await interaction.channel.send({ embeds: [buildEmbed(state)] });
-          return i.update({ content: '✅ Embed sent!', embeds: [], components: [] });
-        }
-      }
+        if (i.isButton()) {
+          if (i.customId === 'eb_cancel') {
+            collector.stop('cancelled');
 
-      if (!i.isStringSelectMenu()) return i.deferUpdate();
+            return i.update({
+              content: '❌ Embed builder cancelled.',
+              embeds: [],
+              components: [],
+            });
+          }
 
-      const choice = i.values[0];
+          if (i.customId === 'eb_send') {
+            const hasContent =
+              state.title ||
+              state.description ||
+              state.author ||
+              state.footer ||
+              state.image ||
+              state.thumbnail ||
+              state.fields.length;
 
-      if (choice === 'content') {
-        const modal = new ModalBuilder()
-          .setCustomId('eb_content')
-          .setTitle('Edit Content')
-          .addComponents(
-            new ActionRowBuilder().addComponents(
-              new TextInputBuilder()
-                .setCustomId('title')
-                .setLabel('Title')
-                .setStyle(TextInputStyle.Short)
-                .setRequired(false)
-                .setMaxLength(256)
-                .setValue(state.title || '')
-            ),
-            new ActionRowBuilder().addComponents(
-              new TextInputBuilder()
-                .setCustomId('description')
-                .setLabel('Description')
-                .setStyle(TextInputStyle.Paragraph)
-                .setRequired(false)
-                .setMaxLength(4000)
-                .setValue(state.description || '')
-            )
-          );
+            if (!hasContent) {
+              return i.reply({
+                embeds: [errorEmbed('Empty Embed', 'Add content before sending.')],
+                ephemeral: true,
+              });
+            }
 
-        await i.showModal(modal);
+            const perms = state.targetChannel.permissionsFor(interaction.guild.members.me);
 
-        const submit = await i.awaitModalSubmit({
-          filter: m => m.customId === 'eb_content' && m.user.id === i.user.id,
-          time: 120_000,
-        }).catch(() => null);
+            if (!perms?.has(PermissionFlagsBits.SendMessages) || !perms?.has(PermissionFlagsBits.EmbedLinks)) {
+              return i.reply({
+                embeds: [
+                  errorEmbed(
+                    'Missing Permissions',
+                    `I need **Send Messages** and **Embed Links** in ${state.targetChannel}.`,
+                  ),
+                ],
+                ephemeral: true,
+              });
+            }
 
-        if (!submit) return;
+            collector.stop('sent');
 
-        state.title = submit.fields.getTextInputValue('title').trim() || null;
-        state.description = submit.fields.getTextInputValue('description').trim() || null;
+            await state.targetChannel.send({
+              embeds: [buildEmbed(state)],
+            });
 
-        await submit.deferUpdate();
-        return refresh();
-      }
-
-      if (choice === 'color') {
-        const modal = new ModalBuilder()
-          .setCustomId('eb_color')
-          .setTitle('Set Color')
-          .addComponents(
-            new ActionRowBuilder().addComponents(
-              new TextInputBuilder()
-                .setCustomId('color')
-                .setLabel('Hex color, example #5865F2')
-                .setStyle(TextInputStyle.Short)
-                .setRequired(true)
-                .setMaxLength(7)
-                .setValue(state.color || '#5865F2')
-            )
-          );
-
-        await i.showModal(modal);
-
-        const submit = await i.awaitModalSubmit({
-          filter: m => m.customId === 'eb_color' && m.user.id === i.user.id,
-          time: 120_000,
-        }).catch(() => null);
-
-        if (!submit) return;
-
-        const color = submit.fields.getTextInputValue('color').trim();
-
-        if (!isValidHex(color)) {
-          return submit.reply({ embeds: [errorEmbed('Invalid Color', 'Use a hex color like `#5865F2`.')], ephemeral: true });
+            return i.update({
+              content: `✅ Embed sent to ${state.targetChannel}!`,
+              embeds: [],
+              components: [],
+            });
+          }
         }
 
-        state.color = color;
-        await submit.deferUpdate();
-        return refresh();
-      }
+        if (i.isChannelSelectMenu() && i.customId === 'eb_target_channel') {
+          const channel = i.channels.first();
 
-      if (choice === 'images') {
-        const modal = new ModalBuilder()
-          .setCustomId('eb_images')
-          .setTitle('Set Images')
-          .addComponents(
-            new ActionRowBuilder().addComponents(
-              new TextInputBuilder()
-                .setCustomId('thumbnail')
-                .setLabel('Thumbnail URL')
-                .setStyle(TextInputStyle.Short)
-                .setRequired(false)
-                .setValue(state.thumbnail || '')
-            ),
-            new ActionRowBuilder().addComponents(
-              new TextInputBuilder()
-                .setCustomId('image')
-                .setLabel('Large Image URL')
-                .setStyle(TextInputStyle.Short)
-                .setRequired(false)
-                .setValue(state.image || '')
-            )
-          );
+          if (!channel) {
+            return i.reply({
+              content: '❌ Could not find that channel.',
+              ephemeral: true,
+            });
+          }
 
-        await i.showModal(modal);
+          state.targetChannel = channel;
 
-        const submit = await i.awaitModalSubmit({
-          filter: m => m.customId === 'eb_images' && m.user.id === i.user.id,
-          time: 120_000,
-        }).catch(() => null);
-
-        if (!submit) return;
-
-        const thumbnail = submit.fields.getTextInputValue('thumbnail').trim();
-        const image = submit.fields.getTextInputValue('image').trim();
-
-        if (thumbnail && !isValidUrl(thumbnail)) {
-          return submit.reply({ embeds: [errorEmbed('Invalid URL', 'Thumbnail must be a valid URL.')], ephemeral: true });
+          await i.deferUpdate();
+          return refresh();
         }
 
-        if (image && !isValidUrl(image)) {
-          return submit.reply({ embeds: [errorEmbed('Invalid URL', 'Image must be a valid URL.')], ephemeral: true });
+        if (!i.isStringSelectMenu()) {
+          return i.deferUpdate();
         }
 
-        state.thumbnail = thumbnail || null;
-        state.image = image || null;
+        const choice = i.values[0];
 
-        await submit.deferUpdate();
-        return refresh();
-      }
+        if (choice === 'content') {
+          const modal = new ModalBuilder()
+            .setCustomId('eb_content')
+            .setTitle('Edit Content')
+            .addComponents(
+              new ActionRowBuilder().addComponents(
+                new TextInputBuilder()
+                  .setCustomId('title')
+                  .setLabel('Title')
+                  .setStyle(TextInputStyle.Short)
+                  .setRequired(false)
+                  .setMaxLength(256)
+                  .setValue(state.title || ''),
+              ),
+              new ActionRowBuilder().addComponents(
+                new TextInputBuilder()
+                  .setCustomId('description')
+                  .setLabel('Description')
+                  .setStyle(TextInputStyle.Paragraph)
+                  .setRequired(false)
+                  .setMaxLength(4000)
+                  .setValue(state.description || ''),
+              ),
+            );
 
-      if (choice === 'author') {
-        const modal = new ModalBuilder()
-          .setCustomId('eb_author')
-          .setTitle('Set Author')
-          .addComponents(
-            new ActionRowBuilder().addComponents(
-              new TextInputBuilder()
-                .setCustomId('author')
-                .setLabel('Author text')
-                .setStyle(TextInputStyle.Short)
-                .setRequired(false)
-                .setMaxLength(256)
-                .setValue(state.author || '')
-            )
-          );
+          await i.showModal(modal);
 
-        await i.showModal(modal);
+          const submit = await i.awaitModalSubmit({
+            filter: m => m.customId === 'eb_content' && m.user.id === i.user.id,
+            time: 120_000,
+          }).catch(() => null);
 
-        const submit = await i.awaitModalSubmit({
-          filter: m => m.customId === 'eb_author' && m.user.id === i.user.id,
-          time: 120_000,
-        }).catch(() => null);
+          if (!submit) return;
 
-        if (!submit) return;
+          state.title = submit.fields.getTextInputValue('title').trim() || null;
+          state.description = submit.fields.getTextInputValue('description').trim() || null;
 
-        state.author = submit.fields.getTextInputValue('author').trim() || null;
-        await submit.deferUpdate();
-        return refresh();
-      }
-
-      if (choice === 'footer') {
-        const modal = new ModalBuilder()
-          .setCustomId('eb_footer')
-          .setTitle('Set Footer')
-          .addComponents(
-            new ActionRowBuilder().addComponents(
-              new TextInputBuilder()
-                .setCustomId('footer')
-                .setLabel('Footer text')
-                .setStyle(TextInputStyle.Short)
-                .setRequired(false)
-                .setMaxLength(2048)
-                .setValue(state.footer || '')
-            )
-          );
-
-        await i.showModal(modal);
-
-        const submit = await i.awaitModalSubmit({
-          filter: m => m.customId === 'eb_footer' && m.user.id === i.user.id,
-          time: 120_000,
-        }).catch(() => null);
-
-        if (!submit) return;
-
-        state.footer = submit.fields.getTextInputValue('footer').trim() || null;
-        await submit.deferUpdate();
-        return refresh();
-      }
-
-      if (choice === 'field') {
-        if (state.fields.length >= MAX_FIELDS) {
-          return i.reply({ embeds: [errorEmbed('Fields Full', 'Maximum 25 fields.')], ephemeral: true });
+          await submit.deferUpdate();
+          return refresh();
         }
 
-        const modal = new ModalBuilder()
-          .setCustomId('eb_field')
-          .setTitle('Add Field')
-          .addComponents(
-            new ActionRowBuilder().addComponents(
-              new TextInputBuilder()
-                .setCustomId('name')
-                .setLabel('Field name')
-                .setStyle(TextInputStyle.Short)
-                .setRequired(true)
-                .setMaxLength(256)
-            ),
-            new ActionRowBuilder().addComponents(
-              new TextInputBuilder()
-                .setCustomId('value')
-                .setLabel('Field value')
-                .setStyle(TextInputStyle.Paragraph)
-                .setRequired(true)
-                .setMaxLength(1024)
-            ),
-            new ActionRowBuilder().addComponents(
-              new TextInputBuilder()
-                .setCustomId('inline')
-                .setLabel('Inline? yes/no')
-                .setStyle(TextInputStyle.Short)
-                .setRequired(false)
-                .setMaxLength(3)
-                .setValue('no')
-            )
-          );
+        if (choice === 'color') {
+          const modal = new ModalBuilder()
+            .setCustomId('eb_color')
+            .setTitle('Set Color')
+            .addComponents(
+              new ActionRowBuilder().addComponents(
+                new TextInputBuilder()
+                  .setCustomId('color')
+                  .setLabel('Hex color, example #5865F2')
+                  .setStyle(TextInputStyle.Short)
+                  .setRequired(true)
+                  .setMaxLength(7)
+                  .setValue(state.color || '#5865F2'),
+              ),
+            );
 
-        await i.showModal(modal);
+          await i.showModal(modal);
 
-        const submit = await i.awaitModalSubmit({
-          filter: m => m.customId === 'eb_field' && m.user.id === i.user.id,
-          time: 120_000,
-        }).catch(() => null);
+          const submit = await i.awaitModalSubmit({
+            filter: m => m.customId === 'eb_color' && m.user.id === i.user.id,
+            time: 120_000,
+          }).catch(() => null);
 
-        if (!submit) return;
+          if (!submit) return;
 
-        const name = submit.fields.getTextInputValue('name').trim();
-        const value = submit.fields.getTextInputValue('value').trim();
-        const inlineText = submit.fields.getTextInputValue('inline').trim().toLowerCase();
+          const color = submit.fields.getTextInputValue('color').trim();
 
-        state.fields.push({
-          name,
-          value,
-          inline: inlineText === 'yes',
-        });
+          if (!isValidHex(color)) {
+            return submit.reply({
+              embeds: [errorEmbed('Invalid Color', 'Use a hex color like `#5865F2`.')],
+              ephemeral: true,
+            });
+          }
 
-        await submit.deferUpdate();
-        return refresh();
+          state.color = color;
+          await submit.deferUpdate();
+          return refresh();
+        }
+
+        if (choice === 'images') {
+          const modal = new ModalBuilder()
+            .setCustomId('eb_images')
+            .setTitle('Set Images')
+            .addComponents(
+              new ActionRowBuilder().addComponents(
+                new TextInputBuilder()
+                  .setCustomId('thumbnail')
+                  .setLabel('Thumbnail URL')
+                  .setStyle(TextInputStyle.Short)
+                  .setRequired(false)
+                  .setValue(state.thumbnail || ''),
+              ),
+              new ActionRowBuilder().addComponents(
+                new TextInputBuilder()
+                  .setCustomId('image')
+                  .setLabel('Large Image URL')
+                  .setStyle(TextInputStyle.Short)
+                  .setRequired(false)
+                  .setValue(state.image || ''),
+              ),
+            );
+
+          await i.showModal(modal);
+
+          const submit = await i.awaitModalSubmit({
+            filter: m => m.customId === 'eb_images' && m.user.id === i.user.id,
+            time: 120_000,
+          }).catch(() => null);
+
+          if (!submit) return;
+
+          const thumbnail = submit.fields.getTextInputValue('thumbnail').trim();
+          const image = submit.fields.getTextInputValue('image').trim();
+
+          if (thumbnail && !isValidUrl(thumbnail)) {
+            return submit.reply({
+              embeds: [errorEmbed('Invalid URL', 'Thumbnail must be a valid URL.')],
+              ephemeral: true,
+            });
+          }
+
+          if (image && !isValidUrl(image)) {
+            return submit.reply({
+              embeds: [errorEmbed('Invalid URL', 'Image must be a valid URL.')],
+              ephemeral: true,
+            });
+          }
+
+          state.thumbnail = thumbnail || null;
+          state.image = image || null;
+
+          await submit.deferUpdate();
+          return refresh();
+        }
+
+        if (choice === 'author') {
+          const modal = new ModalBuilder()
+            .setCustomId('eb_author')
+            .setTitle('Set Author')
+            .addComponents(
+              new ActionRowBuilder().addComponents(
+                new TextInputBuilder()
+                  .setCustomId('author')
+                  .setLabel('Author text')
+                  .setStyle(TextInputStyle.Short)
+                  .setRequired(false)
+                  .setMaxLength(256)
+                  .setValue(state.author || ''),
+              ),
+            );
+
+          await i.showModal(modal);
+
+          const submit = await i.awaitModalSubmit({
+            filter: m => m.customId === 'eb_author' && m.user.id === i.user.id,
+            time: 120_000,
+          }).catch(() => null);
+
+          if (!submit) return;
+
+          state.author = submit.fields.getTextInputValue('author').trim() || null;
+          await submit.deferUpdate();
+          return refresh();
+        }
+
+        if (choice === 'footer') {
+          const modal = new ModalBuilder()
+            .setCustomId('eb_footer')
+            .setTitle('Set Footer')
+            .addComponents(
+              new ActionRowBuilder().addComponents(
+                new TextInputBuilder()
+                  .setCustomId('footer')
+                  .setLabel('Footer text')
+                  .setStyle(TextInputStyle.Short)
+                  .setRequired(false)
+                  .setMaxLength(2048)
+                  .setValue(state.footer || ''),
+              ),
+            );
+
+          await i.showModal(modal);
+
+          const submit = await i.awaitModalSubmit({
+            filter: m => m.customId === 'eb_footer' && m.user.id === i.user.id,
+            time: 120_000,
+          }).catch(() => null);
+
+          if (!submit) return;
+
+          state.footer = submit.fields.getTextInputValue('footer').trim() || null;
+          await submit.deferUpdate();
+          return refresh();
+        }
+
+        if (choice === 'field') {
+          if (state.fields.length >= MAX_FIELDS) {
+            return i.reply({
+              embeds: [errorEmbed('Fields Full', 'Maximum 25 fields.')],
+              ephemeral: true,
+            });
+          }
+
+          const modal = new ModalBuilder()
+            .setCustomId('eb_field')
+            .setTitle('Add Field')
+            .addComponents(
+              new ActionRowBuilder().addComponents(
+                new TextInputBuilder()
+                  .setCustomId('name')
+                  .setLabel('Field name')
+                  .setStyle(TextInputStyle.Short)
+                  .setRequired(true)
+                  .setMaxLength(256),
+              ),
+              new ActionRowBuilder().addComponents(
+                new TextInputBuilder()
+                  .setCustomId('value')
+                  .setLabel('Field value')
+                  .setStyle(TextInputStyle.Paragraph)
+                  .setRequired(true)
+                  .setMaxLength(1024),
+              ),
+              new ActionRowBuilder().addComponents(
+                new TextInputBuilder()
+                  .setCustomId('inline')
+                  .setLabel('Inline? yes/no')
+                  .setStyle(TextInputStyle.Short)
+                  .setRequired(false)
+                  .setMaxLength(3)
+                  .setValue('no'),
+              ),
+            );
+
+          await i.showModal(modal);
+
+          const submit = await i.awaitModalSubmit({
+            filter: m => m.customId === 'eb_field' && m.user.id === i.user.id,
+            time: 120_000,
+          }).catch(() => null);
+
+          if (!submit) return;
+
+          const name = submit.fields.getTextInputValue('name').trim();
+          const value = submit.fields.getTextInputValue('value').trim();
+          const inlineText = submit.fields.getTextInputValue('inline').trim().toLowerCase();
+
+          state.fields.push({
+            name,
+            value,
+            inline: inlineText === 'yes',
+          });
+
+          await submit.deferUpdate();
+          return refresh();
+        }
+
+        if (choice === 'timestamp') {
+          state.timestamp = !state.timestamp;
+          await i.deferUpdate();
+          return refresh();
+        }
+
+        if (choice === 'reset') {
+          state.title = null;
+          state.description = null;
+          state.color = getColor('primary');
+          state.author = null;
+          state.footer = null;
+          state.thumbnail = null;
+          state.image = null;
+          state.timestamp = false;
+          state.fields = [];
+
+          await i.deferUpdate();
+          return refresh();
+        }
+
+        return i.deferUpdate();
+      } catch (error) {
+        console.error('Embed builder interaction error:', error);
+
+        if (!i.replied && !i.deferred) {
+          await i.reply({
+            content: '❌ Something went wrong with that action.',
+            ephemeral: true,
+          }).catch(() => {});
+        }
       }
-
-      if (choice === 'timestamp') {
-        state.timestamp = !state.timestamp;
-        await i.deferUpdate();
-        return refresh();
-      }
-
-      return i.deferUpdate();
     });
 
     collector.on('end', async (_, reason) => {
