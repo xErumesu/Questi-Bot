@@ -4,7 +4,8 @@ import {
   EmbedBuilder,
   ButtonBuilder,
   ButtonStyle,
-  ActionRowBuilder
+  ActionRowBuilder,
+  StringSelectMenuBuilder
 } from 'discord.js';
 
 import { InteractionHelper } from '../../utils/interactionHelper.js';
@@ -41,24 +42,52 @@ export default {
       const embed = new EmbedBuilder().setDescription(description);
       if (title) embed.setTitle(title);
 
-      const cancelButton = new ButtonBuilder()
-        .setCustomId(`embed_cancel_${interaction.id}`)
-        .setLabel('Cancel')
-        .setStyle(ButtonStyle.Danger);
+      const categoryMenu = new StringSelectMenuBuilder()
+        .setCustomId(`embed_category_${interaction.id}`)
+        .setPlaceholder('Choose an embed category')
+        .addOptions(
+          {
+            label: 'Announcement',
+            value: 'announcement',
+            emoji: '📢'
+          },
+          {
+            label: 'Rules',
+            value: 'rules',
+            emoji: '📜'
+          },
+          {
+            label: 'Info',
+            value: 'info',
+            emoji: 'ℹ️'
+          },
+          {
+            label: 'Event',
+            value: 'event',
+            emoji: '🎉'
+          }
+        );
 
       const sendButton = new ButtonBuilder()
         .setCustomId(`embed_send_${interaction.id}`)
         .setLabel('Send Embed')
         .setStyle(ButtonStyle.Success);
 
-      const row = new ActionRowBuilder().addComponents(sendButton, cancelButton);
+      const cancelButton = new ButtonBuilder()
+        .setCustomId(`embed_cancel_${interaction.id}`)
+        .setLabel('Cancel')
+        .setStyle(ButtonStyle.Danger);
 
-      const builderMessage = await InteractionHelper.safeEditReply(interaction, {
-        content: 'Preview your embed. Click **Send Embed** to post it, or **Cancel** to stop.',
+      const menuRow = new ActionRowBuilder().addComponents(categoryMenu);
+      const buttonRow = new ActionRowBuilder().addComponents(sendButton, cancelButton);
+
+      await InteractionHelper.safeEditReply(interaction, {
+        content: 'Preview your embed. Pick a category, then send or cancel.',
         embeds: [embed],
-        components: [row],
-        fetchReply: true
+        components: [menuRow, buttonRow]
       });
+
+      const builderMessage = await interaction.fetchReply();
 
       const collector = builderMessage.createMessageComponentCollector({
         time: 60_000
@@ -69,6 +98,21 @@ export default {
           return await i.reply({
             content: "This isn't your embed builder.",
             ephemeral: true
+          });
+        }
+
+        if (i.customId === `embed_category_${interaction.id}`) {
+          const category = i.values[0];
+
+          if (category === 'announcement') embed.setTitle(title || '📢 Announcement');
+          if (category === 'rules') embed.setTitle(title || '📜 Rules');
+          if (category === 'info') embed.setTitle(title || 'ℹ️ Information');
+          if (category === 'event') embed.setTitle(title || '🎉 Event');
+
+          return await i.update({
+            content: `Category selected: **${category}**`,
+            embeds: [embed],
+            components: [menuRow, buttonRow]
           });
         }
 
