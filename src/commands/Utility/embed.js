@@ -12,17 +12,19 @@ export default {
     .setName('embed')
     .setDescription('Create an embed')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
-    .addStringOption(option =>
-      option
-        .setName('title')
-        .setDescription('Embed title')
-        .setRequired(false)
-    )
+
     .addStringOption(option =>
       option
         .setName('description')
         .setDescription('Embed description')
         .setRequired(true)
+    )
+
+    .addStringOption(option =>
+      option
+        .setName('title')
+        .setDescription('Embed title')
+        .setRequired(false)
     ),
 
   category: 'Utility',
@@ -35,14 +37,17 @@ export default {
       const title = interaction.options.getString('title');
       const description = interaction.options.getString('description');
 
-      const embed = new EmbedBuilder()
-        .setDescription(description);
+      const embed = new EmbedBuilder();
 
       if (title) {
         embed.setTitle(title);
       }
 
-      await interaction.channel.send({ embeds: [embed] });
+      embed.setDescription(description);
+
+      await interaction.channel.send({
+        embeds: [embed]
+      });
 
       return await InteractionHelper.safeEditReply(interaction, {
         content: '✅ Embed sent!'
