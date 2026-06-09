@@ -35,16 +35,22 @@ export default {
       const title = interaction.options.getString('title');
       const description = interaction.options.getString('description');
 
-      const embed = new EmbedBuilder().setDescription(description);
+      const embed = new EmbedBuilder()
+        .setDescription(description);
 
-      if (title) embed.setTitle(title);
+      if (title) {
+        embed.setTitle(title);
+      }
 
       await interaction.channel.send({ embeds: [embed] });
 
       return await InteractionHelper.safeEditReply(interaction, {
         content: '✅ Embed sent!'
       });
+
     } catch (error) {
+      console.error('Embed command error:', error);
+
       await handleInteractionError(interaction, error, {
         commandName: 'embed',
         source: 'embed_command'
