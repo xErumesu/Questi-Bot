@@ -36,12 +36,9 @@ export default {
       return interaction.reply('Wrong name.');
     }
 
-    if (spawn.timeout) {
-      clearTimeout(spawn.timeout);
-    }
+    if (spawn.timeout) clearTimeout(spawn.timeout);
 
     activeQuestionableSpawns.delete(interaction.guildId);
-
     addToInventory(interaction.user.id, spawn);
 
     const defaultCatchText =
