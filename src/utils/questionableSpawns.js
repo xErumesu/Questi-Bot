@@ -1,72 +1,68 @@
-export const questionableSpawnChannels = new Set();
-export const activeQuestionableSpawns = new Map();
-export const questionableInventories = new Map();
+import {
+  SlashCommandBuilder,
+  PermissionFlagsBits,
+  EmbedBuilder
+} from 'discord.js';
 
-export const questionables = [
-  {
-    id: 'leo_questionable',
-    name: 'Leo Questionable',
-    answer: 'questionable',
-    rarity: 'Common'
-  },
-  {
-    id: 'soba_questionable',
-    name: 'Soba Questionable',
-    answer: 'questionable',
-    rarity: 'Uncommon'
-  },
-  {
-    id: 'star_questionable',
-    name: 'Star Questionable',
-    answer: 'questionable',
-    rarity: 'Rare'
-  },
-  {
-    id: 'captain_questionable',
-    name: 'Captain Questionable',
-    answer: 'questionable',
-    rarity: 'Godly'
+import { questionables, getQuestionableById, getRandomQuestionable } from '../../data/questionables.js';
+import { activeQuestionableSpawns } from '../../utils/questionableState.js';
+
+export default {
+  data: new SlashCommandBuilder()
+    .setName('spawnquestionable')
+    .setDescription('Force spawn a Questionable.')
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
+    .addStringOption(option =>
+      option
+        .setName('type')
+        .setDescription('Which Questionable to spawn')
+        .setRequired(true)
+        .addChoices(
+          { name: 'Random', value: 'random' },
+          ...questionables.map(q => ({
+            name: `${q.name} (${q.rarity})`,
+            value: q.id
+          }))
+        )
+    ),
+
+  category: 'Utility',
+
+  async execute(interaction) {
+    const type = interaction.options.getString('type');
+
+    const questionable =
+      type === 'random'
+        ? getRandomQuestionable()
+        : getQuestionableById(type);
+
+    if (!questionable) {
+      return interaction.reply({
+        content: 'That Questionable does not exist.',
+        ephemeral: true
+      });
+    }
+
+    activeQuestionableSpawns.set(interaction.guildId, {
+      ...questionable,
+      channelId: interaction.channel.id
+    });
+
+    const embed = new EmbedBuilder()
+      .setTitle('🌟 A wild Questionable appeared!')
+      .setDescription(
+        `A wild **${questionable.name}** appeared!\nRarity: **${questionable.rarity}**\n\nUse \`/catch questionable\` to catch it!`
+      );
+
+    if (questionable.image) {
+      embed.setImage(questionable.image);
+    }
+
+    await interaction.channel.send({ embeds: [embed] });
+
+    return interaction.reply({
+      content: `✅ Spawned **${questionable.name}**.`,
+      ephemeral: true
+    });
   }
-];
-
-export function canSpawnInChannel(channelId, allowedChannels) {
-  if (questionableSpawnChannels.size > 0) {
-    return questionableSpawnChannels.has(channelId);
-  }
-
-  return allowedChannels.has(channelId);
-}
-
-export function getRandomQuestionable() {
-  const roll = Math.random();
-
-  if (roll < 0.01) return questionables.find(q => q.id === 'captain_questionable');
-  if (roll < 0.10) return questionables.find(q => q.id === 'star_questionable');
-  if (roll < 0.30) return questionables.find(q => q.id === 'soba_questionable');
-
-  return questionables.find(q => q.id === 'leo_questionable');
-}
-
-export function addToInventory(guildId, userId, questionable) {
-  const key = `${guildId}:${userId}`;
-
-  if (!questionableInventories.has(key)) {
-    questionableInventories.set(key, []);
-  }
-
-  const inventory = questionableInventories.get(key);
-
-  inventory.push({
-    id: questionable.id,
-    name: questionable.name,
-    rarity: questionable.rarity,
-    caughtAt: Date.now()
-  });
-
-  return inventory;
-}
-
-export function getInventory(guildId, userId) {
-  const key = `${guildId}:${userId}`;
-  return questionableInventories.get(key) || [];
-}
+};
