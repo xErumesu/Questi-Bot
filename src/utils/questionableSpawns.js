@@ -16,17 +16,17 @@ function buildSpawnEmbed(questionable) {
   const catchAnswer = questionable.catchAnswer || 'questionable';
   const catchTime = questionable.catchTime || 60_000;
 
+  const defaultText = [
+    `A wild **${questionable.name}** appeared!`,
+    `Rarity: **${questionable.rarity}**`,
+    '',
+    `Use \`/catch ${catchAnswer}\` to catch it!`,
+    `⏳ Escapes in **${Math.floor(catchTime / 1000)} seconds**.`
+  ].join('\n');
+
   const embed = new EmbedBuilder()
-    .setTitle('🌟 A wild Questionable appeared!')
-    .setDescription(
-      [
-        `A wild **${questionable.name}** appeared!`,
-        `Rarity: **${questionable.rarity}**`,
-        '',
-        `Use \`/catch ${catchAnswer}\` to catch it!`,
-        `⏳ Escapes in **${Math.floor(catchTime / 1000)} seconds**.`
-      ].join('\n')
-    );
+    .setTitle(questionable.spawnTitle || '🌟 A wild Questionable appeared!')
+    .setDescription(questionable.spawnText || defaultText);
 
   if (questionable.image) {
     embed.setImage(questionable.image);
@@ -37,7 +37,7 @@ function buildSpawnEmbed(questionable) {
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('spawnquestionable')
+    .setName('spawn')
     .setDescription('Force spawn a Questionable.')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
     .addStringOption(option =>
@@ -103,7 +103,11 @@ export default {
 
       activeQuestionableSpawns.delete(interaction.guildId);
 
-      channel.send(`💨 **${questionable.name}** escaped!`).catch(() => {});
+      const escapeText =
+        questionable.escapeText ||
+        `💨 **${questionable.name}** escaped!`;
+
+      channel.send(escapeText).catch(() => {});
     }, catchTime);
 
     activeQuestionableSpawns.set(interaction.guildId, spawnData);
