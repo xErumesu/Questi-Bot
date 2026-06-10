@@ -29,7 +29,6 @@ export default {
         counts.set(questionable.id, {
           name: questionable.name,
           rarity: questionable.rarity || 'Unknown',
-          image: questionable.image,
           count: 0
         });
       }
