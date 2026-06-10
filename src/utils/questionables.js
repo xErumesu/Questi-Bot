@@ -2,30 +2,68 @@ export const questionables = [
   {
     id: 'leo',
     name: 'Leo Questionable',
+    type: 'regular',
     rarity: 'Common',
-    image: 'PASTE_IMAGE_URL_HERE',
+
+    image: '',
+
     catchAnswer: 'questionable',
+    catchTime: 60000,
   },
+
   {
-    id: 'soba',
+    id: 'Soba',
     name: 'Soba Questionable',
+    type: 'regular',
     rarity: 'Uncommon',
-    image: 'PASTE_IMAGE_URL_HERE',
+
+    image: '',
+
     catchAnswer: 'questionable',
+    catchTime: 60000,
   },
+
+  {
+    id: 'rylan',
+    name: 'Rylan Questionable',
+    type: 'regular',
+    rarity: 'Rare',
+
+    image: '',
+
+    catchAnswer: 'questionable',
+    catchTime: 60000,
+  },
+
+  {
+    id: 'star',
+    name: 'Star Questionable',
+    type: 'regular',
+    rarity: 'Epic',
+
+    image: '',
+
+    catchAnswer: 'questionable',
+    catchTime: 60000,
+  },
+
+  // CUSTOMS
+
   {
     id: 'captain',
     name: 'Captain Questionable',
-    rarity: 'Godly',
-    image: 'PASTE_IMAGE_URL_HERE',
-    catchAnswer: 'questionable',
+    type: 'custom',
+
+    image: '',
+
+    catchAnswer: 'captain questionable',
+    catchTime: 15000,
+
+    spawnTitle: '👑 Captain Questionable appeared!',
+    spawnText:
+      '👑 Captain Questionable has arrived.\n\nUse `/catch captain questionable` before he leaves!',
+
+    escapeText:
+      '💨 Captain Questionable escaped before anyone could recruit him.'
   },
 ];
-
-export function getQuestionableById(id) {
-  return questionables.find(q => q.id === id);
-}
-
-export function getRandomQuestionable() {
-  return questionables[Math.floor(Math.random() * questionables.length)];
-}
