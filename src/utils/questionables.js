@@ -42,7 +42,7 @@ export const questionables = [
     rarity: 'Custom',
     image: 'https://cdn.corenexis.com/files/c/5283113720.png',
     catchAnswer: 'captain questionable',
-    catchTime: 15000,
+    catchTime: 5000,
     spawnTitle: '👑 Captain Questionable appeared!',
     spawnText: '👑 Captain Questionable has arrived.\n\nUse `/catch captain questionable` before he leaves!',
     escapeText: '💨 Captain Questionable escaped before anyone could recruit him.',
