@@ -1,8 +1,9 @@
 import { SlashCommandBuilder } from 'discord.js';
+
 import {
   activeQuestionableSpawns,
   addToInventory
-} from '../../utils/questionableSpawns.js';
+} from '../../utils/questionableState.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -18,7 +19,7 @@ export default {
   category: 'Fun',
 
   async execute(interaction) {
-    const guess = interaction.options.getString('name').toLowerCase();
+    const guess = interaction.options.getString('name').toLowerCase().trim();
     const spawn = activeQuestionableSpawns.get(interaction.guildId);
 
     if (!spawn) {
@@ -29,16 +30,27 @@ export default {
       return interaction.reply('The Questionable is not in this channel.');
     }
 
-    if (guess !== spawn.answer) {
+    const answer = (spawn.catchAnswer || 'questionable').toLowerCase();
+
+    if (guess !== answer) {
       return interaction.reply('Wrong name.');
+    }
+
+    if (spawn.timeout) {
+      clearTimeout(spawn.timeout);
     }
 
     activeQuestionableSpawns.delete(interaction.guildId);
 
-    addToInventory(interaction.guildId, interaction.user.id, spawn);
+    addToInventory(interaction.user.id, spawn);
 
-    return interaction.reply(
-      `🎉 ${interaction.user} caught **${spawn.name}**!\nRarity: **${spawn.rarity}**`
-    );
+    const defaultCatchText =
+      `🎉 ${interaction.user} caught **${spawn.name}**!\nRarity: **${spawn.rarity || 'Unknown'}**`;
+
+    const catchText = spawn.catchText
+      ? spawn.catchText.replace('{user}', `${interaction.user}`)
+      : defaultCatchText;
+
+    return interaction.reply(catchText);
   }
 };
