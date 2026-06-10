@@ -28,7 +28,9 @@ function buildSpawnEmbed(questionable) {
     .setTitle(questionable.spawnTitle || '🌟 A wild Questionable appeared!')
     .setDescription(questionable.spawnText || defaultText);
 
-  if (questionable.image) embed.setImage(questionable.image);
+  if (questionable.image) {
+    embed.setImage(questionable.image);
+  }
 
   return embed;
 }
@@ -58,7 +60,7 @@ export default {
         .setRequired(false)
     ),
 
-  category: 'Utility',
+  category: 'Fun',
 
   async execute(interaction) {
     const type = interaction.options.getString('type');
@@ -77,7 +79,10 @@ export default {
     }
 
     const oldSpawn = activeQuestionableSpawns.get(interaction.guildId);
-    if (oldSpawn?.timeout) clearTimeout(oldSpawn.timeout);
+
+    if (oldSpawn?.timeout) {
+      clearTimeout(oldSpawn.timeout);
+    }
 
     const catchTime = questionable.catchTime || 60000;
 
@@ -92,6 +97,7 @@ export default {
 
     spawnData.timeout = setTimeout(() => {
       const current = activeQuestionableSpawns.get(interaction.guildId);
+
       if (!current) return;
       if (current.spawnedAt !== spawnData.spawnedAt) return;
 
