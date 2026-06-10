@@ -13,33 +13,6 @@ import { disabledChannels } from '../commands/Utility/autoresponder.js';
 const MESSAGE_XP_RATE_LIMIT_ATTEMPTS = 12;
 const MESSAGE_XP_RATE_LIMIT_WINDOW_MS = 10000;
 
-export default {
-    name: Events.MessageCreate,
-  async execute(message, client) {
-    try {
-      if (message.author.bot || !message.guild) return;
-
-      // Autoresponder disabled in this channel
-      if (disabledChannels.has(message.channel.id)) return;
-
-      // Auto responses go here
-      const content = message.content.toLowerCase();
-
-      if (content.includes("questionable")) {
-        return message.reply("Did somebody say questionable?");
-      }
-      if (content.includes("hate questi")) {
-        const responses = [
-            "Vice frickin versa.",
-            "Who is this???",
-            "A **ROBOT** cannot be your rival, gang 🥀",
-            "WHO ARE YOU??",
-            "Nobody knows you.",
-        ];
-        const response = responses[Math.floor(Math.random() * responses.length)];
-
-        await message.channel.send(response);
-      }
       await handleLeveling(message, client);
     } catch (error) {
       logger.error('Error in messageCreate event:', error);
