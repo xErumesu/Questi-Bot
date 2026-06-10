@@ -4,8 +4,36 @@ import {
   EmbedBuilder
 } from 'discord.js';
 
-import { questionables, getQuestionableById, getRandomQuestionable } from '../../data/questionables.js';
+import {
+  questionables,
+  getQuestionableById,
+  getRandomQuestionable
+} from '../../data/questionables.js';
+
 import { activeQuestionableSpawns } from '../../utils/questionableState.js';
+
+function buildSpawnEmbed(questionable) {
+  const catchAnswer = questionable.catchAnswer || 'questionable';
+  const catchTime = questionable.catchTime || 60_000;
+
+  const embed = new EmbedBuilder()
+    .setTitle('🌟 A wild Questionable appeared!')
+    .setDescription(
+      [
+        `A wild **${questionable.name}** appeared!`,
+        `Rarity: **${questionable.rarity}**`,
+        '',
+        `Use \`/catch ${catchAnswer}\` to catch it!`,
+        `⏳ Escapes in **${Math.floor(catchTime / 1000)} seconds**.`
+      ].join('\n')
+    );
+
+  if (questionable.image) {
+    embed.setImage(questionable.image);
+  }
+
+  return embed;
+}
 
 export default {
   data: new SlashCommandBuilder()
@@ -19,17 +47,24 @@ export default {
         .setRequired(true)
         .addChoices(
           { name: 'Random', value: 'random' },
-          ...questionables.map(q => ({
-            name: `${q.name} (${q.rarity})`,
+          ...questionables.slice(0, 24).map(q => ({
+            name: `${q.name} (${q.rarity})`.substring(0, 100),
             value: q.id
           }))
         )
+    )
+    .addChannelOption(option =>
+      option
+        .setName('channel')
+        .setDescription('Where to spawn it')
+        .setRequired(false)
     ),
 
   category: 'Utility',
 
   async execute(interaction) {
     const type = interaction.options.getString('type');
+    const channel = interaction.options.getChannel('channel') || interaction.channel;
 
     const questionable =
       type === 'random'
@@ -43,25 +78,42 @@ export default {
       });
     }
 
-    activeQuestionableSpawns.set(interaction.guildId, {
-      ...questionable,
-      channelId: interaction.channel.id
-    });
+    const oldSpawn = activeQuestionableSpawns.get(interaction.guildId);
 
-    const embed = new EmbedBuilder()
-      .setTitle('🌟 A wild Questionable appeared!')
-      .setDescription(
-        `A wild **${questionable.name}** appeared!\nRarity: **${questionable.rarity}**\n\nUse \`/catch questionable\` to catch it!`
-      );
-
-    if (questionable.image) {
-      embed.setImage(questionable.image);
+    if (oldSpawn?.timeout) {
+      clearTimeout(oldSpawn.timeout);
     }
 
-    await interaction.channel.send({ embeds: [embed] });
+    const catchTime = questionable.catchTime || 60_000;
+
+    const spawnData = {
+      ...questionable,
+      channelId: channel.id,
+      spawnedAt: Date.now(),
+      expiresAt: Date.now() + catchTime,
+      forced: true,
+      timeout: null
+    };
+
+    spawnData.timeout = setTimeout(() => {
+      const current = activeQuestionableSpawns.get(interaction.guildId);
+
+      if (!current) return;
+      if (current.spawnedAt !== spawnData.spawnedAt) return;
+
+      activeQuestionableSpawns.delete(interaction.guildId);
+
+      channel.send(`💨 **${questionable.name}** escaped!`).catch(() => {});
+    }, catchTime);
+
+    activeQuestionableSpawns.set(interaction.guildId, spawnData);
+
+    await channel.send({
+      embeds: [buildSpawnEmbed(questionable)]
+    });
 
     return interaction.reply({
-      content: `✅ Spawned **${questionable.name}**.`,
+      content: `✅ Spawned **${questionable.name}** in ${channel}.`,
       ephemeral: true
     });
   }
