@@ -1,14 +1,14 @@
 export const questionables = [
   {
-    id: 'green',
-    name: 'Green Questionable',
+    id: 'leo',
+    name: 'Leo Questionable',
     rarity: 'Common',
     image: 'PASTE_IMAGE_URL_HERE',
     catchAnswer: 'questionable',
   },
   {
-    id: 'boosted',
-    name: 'Boosted Questionable',
+    id: 'soba',
+    name: 'Soba Questionable',
     rarity: 'Uncommon',
     image: 'PASTE_IMAGE_URL_HERE',
     catchAnswer: 'questionable',
