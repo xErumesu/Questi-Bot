@@ -67,3 +67,17 @@ export const questionables = [
       '💨 Captain Questionable escaped before anyone could recruit him.'
   },
 ];
+
+export function getQuestionableById(id) {
+  return questionables.find(q => q.id === id);
+}
+
+export function getRandomQuestionable() {
+  const regulars = questionables.filter(
+    q => q.type === 'regular'
+  );
+
+  return regulars[
+    Math.floor(Math.random() * regulars.length)
+  ];
+}
