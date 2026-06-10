@@ -8,7 +8,7 @@ import {
   questionables,
   getQuestionableById,
   getRandomQuestionable
-} from '../../data/questionables.js';
+} from '../../utils/questionables.js';
 
 import { activeQuestionableSpawns } from '../../utils/questionableState.js';
 
