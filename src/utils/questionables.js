@@ -40,7 +40,7 @@ export const questionables = [
     name: 'Captain Questionable',
     type: 'custom',
     rarity: 'Custom',
-    image: 'https://cdn.corenexis.com/files/c/4739571720.png',
+    image: 'https://cdn.corenexis.com/files/c/5283113720.png',
     catchAnswer: 'captain questionable',
     catchTime: 15000,
     spawnTitle: '👑 Captain Questionable appeared!',
